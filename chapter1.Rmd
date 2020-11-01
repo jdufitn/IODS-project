@@ -1,11 +1,16 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 
-## ABOUT THE Course
+## About the Course
 
 I heard about the course from an email send by **Prof. Kimmo**, 
 himself, and decided to join. So thanks **Kimmo**.
 I am so excited to learn about **all things Data Science**. 
 
-## EXPECT TO LEARN
+## Expect to learn 
 
 I have used **R** and **Rstudio** for about three years now.
 However, I have not yet tried out **GitHub**. I thought
