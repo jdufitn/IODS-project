@@ -1,13 +1,33 @@
 
-# About the project
+## ABOUT THE Course
 
-*Write a short description about the course and add a link to your GitHub repository here. This is an R Markdown (.Rmd) file so you should use R Markdown syntax.*
+I heard about the course from an email send by **Prof. Kimmo**, 
+himself, and decided to join. So thanks **Kimmo**.
+I am so excited to learn about **all things Data Science**. 
+
+## EXPECT TO LEARN
+
+I have used **R** and **Rstudio** for about three years now.
+However, I have not yet tried out **GitHub**. I thought
+this would be a good chance and refresh my analytics skills.
+
+## Link to my GitHub repository
+Here is the link to my GitHub 
+**[Josephine's GitHub](https://github.com/jdufitn/IODS-project)**.
+
+
+## A curious question
+
+As I am a regular R user, I guess things like
+
+* Import and read data
+* Data visualization
+* Run linear models
+* Explore data
 
 ```{r}
-# This is a so-called "R chunk" where you can write R code.
-
-date()
-
+head(mtcars$disp) # few first
+tail(mtcars$disp) # few last
 ```
-The text continues here.
+Would be familiar. I was wondering if, during the course, we will also explore writing **R packages**.
 
