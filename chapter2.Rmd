@@ -1,13 +1,124 @@
-# Insert chapter 2 title here
+# Regression and model validation
+This chapter focuses on performing and interpreting regression analysis.
 
-*Describe the work you have done this week and summarize your learning.*
+## Read the students2014 data 
+The data is from an international survey of Approaches to Learning, 
+made possible by Teachers' Academy funding for KV in 2013-2015.
+The data has been filtered to include the desirable variables for
+analysis. The original data and variables descriptions can be found 
+**[here](https://www.mv.helsinki.fi/home/kvehkala/JYTmooc/JYTOPKYS3-meta.txt)**.
 
-- Describe your work and results clearly. 
-- Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods.
-- Assume the reader has no previous knowledge of your data or the more advanced methods you are using.
 
 ```{r}
-date()
+data_analysis <- read.csv("learning2014.csv") # Read data from my local folder
+str(data_analysis) # The data structure is data frame.
+dim(data_analysis) # The data contains 166 observations or rows and 7 variables or columns.
+head(data_analysis, n = 3) # Three first rows
+tail(data_analysis, n = 3) # Three last rows
 ```
 
-Here we go again...
+* The **attitude** column is a summary of the **Attitude** column, which is a sum of 10 questions related to students attitude towards statistics, each measured on the scale (1-5).
+* The **"deep"** column summarizes the "D" measures. Precisely, D03, D11, D19, D27, D07, D14, D22, D30,D06,  D15, D23, D31. 
+* The **"surf"** column summarizes the "SU" measures. Precisely, SU02, SU10, SU18, SU26, SU05, SU13, SU21, SU29, SU08, SU16, SU24, SU32.
+* The **"stra"** column summarizes the "ST" measures. Precisely, ST01, ST09, ST17, ST25, ST04, ST12, ST20, ST28.
+
+
+
+## A graphical overview of the data and summary of the variables 
+
+```{r message = FALSE}
+library(GGally) # Access the GGally library
+library(ggplot2) # Access the ggplot2 library
+```
+
+```{r}
+# create plot matrix with ggpairs() by gender.
+ggpairs(data_analysis, mapping = aes(col = gender, alpha = 0.3), lower = list(combo = wrap("facethist", bins = 20)))    
+```
+
+**Interpretations**: 
+
+* There seem to be more females students than males, as it is shown form the gender bar plot.
+* The median age of males students is a little higher than females. On the other hand, the median point is somehow the same for males and females.
+* The "attitude" variable is positively correlated with the "Points" variable for both females and males. Same observation with the "stra" variable. 
+* The rest of the variables are negatively correlated with the "Points" variable. 
+* The "Age" variable is left-skewed. The other variables look somehow normal distributed with more than one mode. 
+
+```{r}
+summary(data_analysis) #  summary of the variables
+```
+
+**Interpretations**: 
+
+* The students' average age is 25 years, the youngest student is 17 years, while the oldest is 55 years. 
+* The average exam point is 22.72, the lowest point is 7, while the highest point is 33. 
+* The global attitude toward statistics, on average, is about 3.143 over 5.
+
+
+## Fit a regression model
+For the regression model, the three chosen explanatory variables are **attitude**, **stra**, and **surf**. Their choice is based on the correlation analysis conducted on the step above. As it can be observed, the three variables are correlated with the response variable **Points**. 
+
+```{r}
+# Fit a multiple linear regression model using the lm() function
+model1 <- lm(Points ~ attitude + stra + surf,
+             data = data_analysis)
+# Summary of the fitted model
+summary(model1)
+```
+
+**Interpretations**: Both **stra** and **surf** variables are not statistically significant as their p-values are higher than 0.05 at 5% level of significance; the usually used significance level. Let us remove the variables one by one, starting from **surf**, and refit the model.
+
+```{r}
+# Fit a new multiple linear regression model without the surf variable
+model2 <- lm(Points ~ attitude + stra,
+             data = data_analysis)
+# Summary of the new fitted model
+summary(model2)
+```
+
+**Interpretations**: In the new fitted model, the remaining variables seem to be statistically significant, at least up to 10% level of significance for the **stra** variable.
+
+
+## Summary and model interpretations
+
+In linear regression, the model interpretation depends on the used functional form. In this case, the used functional form is the linear-linear one, which means there was no log-transformation of the data.
+
+Therefore, the interpretation goes as follows **"One unit increase in x[explanatory variable] results in Beta_1 (the estimated parameter) unit increase in y[response variable]**. Additionally, as the case is a multiple linear regression, for the interpretation, one must hold other factors fixed and interpret one variable at a time.
+
+**Interpretations**:
+
+* By holding other factors fixed, an increase of one unit in the global attitude toward statistics results in **3.46** unit increase in the exam points.
+* By holding other factors fixed, an increase of one unit in stra results in **0.91** unit increase in the exam points. Recall that stra variable is a summary of different measures.  
+
+
+**The R-squared** is used to quantify how well the model fits the data. In simple linear regression, it is the quotient between the Sum Squared Explained (SSE) over Sum Squared Total (SST). The reason why, in multiple linear regression, it is recommended to assess the model fitting using the adjusted R squared, which take into accounts the number of the fitted parameters.
+
+**Interpretation**: In the case of model2, Adjusted R squared = 0.1951, reflecting that the model explained **19.5%** of the data. The higher the Adjusted R-squared, the better the model.
+
+
+## Diagnostic plots
+
+```{r}
+# Plot the diagnostics plots: Residuals vs Fitted values, Normal QQ-plot and Residuals vs Leverage
+par(mfrow = c(2,2)) # Divide the window into a 2-by-2 subwindows. 
+plot(model2, which = c(1,2,5))
+```
+
+* **The Q-Q plot**: The plot is used to diagnose the normality assumption of the linear regression model. If most of the points lay on the line, it indicates that the assumption is justified.
+
+**Interpretation**: most of the residuals points seem to lay on the line; the normality assumption is justified.
+
+* **The Residuals vs Fitted values plot**: The plot is used to quantify a the constant variance assumption. There has to be no pattern in the plot, which indicates that the size of the errors should not depend on the explanatory variables.
+
+**Interpretation**: The residuals seem to be randomly distributed with respect to the fitted values; no pattern is observed; the assumption is justified.
+
+* **The Residuals vs Leverage plot**: The plot is used to investigate whether there is an outlier observation which can influence the outcome of the model.
+
+**Interpretation**: No stand-up outlier is observed.
+
+
+
+
+
+
+
