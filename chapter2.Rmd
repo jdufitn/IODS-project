@@ -87,7 +87,7 @@ Therefore, the interpretation goes as follows **"One unit increase in x[explanat
 
 **Interpretations**:
 
-* By holding other factors fixed, an increase of one unit in the global attitude toward statistics results in **3.46** unit increase in the exam points.
+* By holding other factors fixed, an increase of one unit in the global attitude toward statistics results in **3.47** unit increase in the exam points.
 * By holding other factors fixed, an increase of one unit in stra results in **0.91** unit increase in the exam points. Recall that stra variable is a summary of different measures.  
 
 
@@ -100,7 +100,7 @@ Therefore, the interpretation goes as follows **"One unit increase in x[explanat
 
 ```{r}
 # Plot the diagnostics plots: Residuals vs Fitted values, Normal QQ-plot and Residuals vs Leverage
-par(mfrow = c(2,2)) # Divide the window into a 2-by-2 subwindows. 
+par(mfrow = c(2,2)) # Divide the window into a 2-by-2 sub-windows. 
 plot(model2, which = c(1,2,5))
 ```
 
