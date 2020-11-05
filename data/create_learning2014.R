@@ -58,6 +58,9 @@ head(data_analysis) # six first
 tail(data_analysis) #six last
 
 # Save the "data_analysis" data frame
+# To set the working directory in RStudio:
+# Selected the folder, click on More >> Set As Working Directory.
+
 write.csv(data_analysis, file = "learning2014.csv", row.names = FALSE)
 
 # Read the data again
