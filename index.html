@@ -744,7 +744,7 @@ library(ggplot2) # Access the ggplot2 library</code></pre>
 <li>On average, males alcohol user tend to have lower grades (2 points less than non-alcohol users).</li>
 <li>For females, grades point average is quite the same for alcohol and non-alcohol users.</li>
 <li>Looking at the boxplot, the non-alcohol user students have high grades. Especially, males, their median grade point is higher than females.</li>
-<li>Higher alcohol user students tend to have lower grades <strong>(<em>H1</em> satisfied)</strong></li>
+<li>Higher alcohol user students tend to have lower grades. One can argue that <strong><em>H1</em> is satisfied</strong>.</li>
 <li>For higher alcohol users, females tend to have a high median grade point than males.</li>
 </ul>
 </div>
@@ -809,7 +809,7 @@ coef(glm_model1)</code></pre>
 ## -1.38732604 -0.04670941  0.50382370  0.09057516  1.00870144</code></pre>
 <p><strong>Interpretations</strong>:</p>
 <ul>
-<li>The <strong>student grades (G3)</strong> variable is not statistically significant; thus, it will be removed from the model. Hence, <strong><em>H1</em> in not satisfied</strong></li>
+<li>The <strong>student grades (G3)</strong> variable is not statistically significant; thus, it will be removed from the model. Hence, <strong><em>H1</em> is not satisfied</strong></li>
 <li>As the sex variables is a factor variable, the “female” part of the variable is the baseline, and its coefficient is simply the intercept.</li>
 <li>The true coefficient of the “male” student would be <strong>-1.38733 + 1.00870 = -0.37863</strong>.</li>
 </ul>
@@ -875,7 +875,7 @@ cbind(OR, CI)</code></pre>
 <pre class="r"><code># predict() the probability of high_use
 probabilities &lt;- predict(glm_model2, type = &quot;response&quot;)
 
-# add the predicted probabilities to &#39;alc&#39;
+# add the predicted probabilities to &#39;data_joined&#39;
 data_joined &lt;- mutate(data_joined, probability = probabilities)
 
 # use the probabilities to make a prediction of high_use
@@ -901,15 +901,11 @@ table(high_use = data_joined$high_use,
 ## high_use FALSE TRUE
 ##    FALSE   252    7
 ##    TRUE     78   33</code></pre>
-<pre class="r"><code># tabulate the target variable versus the predictions
-table(high_use = data_joined$high_use, prediction=data_joined$prediction)%&gt;%
-prop.table() %&gt;%
-addmargins()</code></pre>
-<pre><code>##         prediction
-## high_use      FALSE       TRUE        Sum
-##    FALSE 0.68108108 0.01891892 0.70000000
-##    TRUE  0.21081081 0.08918919 0.30000000
-##    Sum   0.89189189 0.10810811 1.00000000</code></pre>
+<p><strong>Comments</strong>:</p>
+<ul>
+<li>They are 252 true negatives and 33 true positives, i.e the model was able to explain 252 over 300 FALSEs, and 33 over 40 TRUEs.</li>
+<li>7 false negatives and 78 false positives, i.e the model missed 7 over 40 TRUEs and 78 over 300 FALSEs.</li>
+</ul>
 <p>Let us check the accuracy and loss functions of the model</p>
 <pre class="r"><code># define a loss function (mean prediction error)
 loss_func &lt;- function(class, prob) {
@@ -920,12 +916,7 @@ loss_func &lt;- function(class, prob) {
 # call loss_func to compute the average number of wrong predictions in the (training) data
 loss_func(class = data_joined$high_use, prob = data_joined$probability)</code></pre>
 <pre><code>## [1] 0.2297297</code></pre>
-<p><strong>Comments</strong>:</p>
-<ul>
-<li>They are 252 true negatives and 33 true positives, i.e the model was able to explain 252 over 300 FALSEs, and 33 over 40 TRUEs.</li>
-<li>7 false negatives and 78 false positives, i.e the model missed 7 over 40 TRUEs and 78 over 300 FALSEs.</li>
-<li>The mean of incorrectly classified observations can be thought of as a penalty (loss) function for the classifier. Less penalty = good. The aim is to minimize the incorrectly classified observations.</li>
-</ul>
+<p><strong>Comments</strong>: The mean of incorrectly classified observations can be thought of as a penalty (loss) function for the classifier. Less penalty = good. The aim is to minimize the incorrectly classified observations. Model2 has a mean prediction error of about <strong>23%</strong>.</p>
 </div>
 <div id="bonus-perform-10-fold-cross-validation-on-the-model" class="section level2">
 <h2>Bonus: Perform 10-fold cross-validation on the model</h2>
@@ -934,7 +925,8 @@ cv &lt;- cv.glm(data = data_joined, cost = loss_func, glmfit = glm_model2, K = 1
 
 # average number of wrong predictions in the cross validation
 cv$delta[1]</code></pre>
-<pre><code>## [1] 0.2297297</code></pre>
+<pre><code>## [1] 0.2378378</code></pre>
+<p><strong>Comments</strong>:</p>
 </div>
 <div id="super-bonus-perform-cross-validation-on-models" class="section level2">
 <h2>Super-Bonus: Perform cross-validation on models</h2>

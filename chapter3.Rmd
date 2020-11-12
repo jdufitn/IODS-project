@@ -52,7 +52,7 @@ ggplot(data_joined, aes(x = high_use, y = G3, col = sex)) + geom_boxplot() + yla
 * On average, males alcohol user tend to have lower grades (2 points less   than non-alcohol users).
 * For females,  grades point average is quite the same for alcohol and      non-alcohol users.
 * Looking at the boxplot, the non-alcohol user students have high grades.   Especially, males, their median grade point is higher than females.
-* Higher alcohol user students tend to have lower grades **(*H1*        satisfied)**
+* Higher alcohol user students tend to have lower grades. One can argue that ***H1* is satisfied**.
 * For higher alcohol users, females tend to have a high median grade point   than males.
 
 
@@ -102,7 +102,7 @@ coef(glm_model1)
 
 **Interpretations**:
 
-* The **student grades (G3)** variable is not statistically significant;   thus, it will be removed from the model. Hence, ***H1* in not           satisfied** 
+* The **student grades (G3)** variable is not statistically significant;   thus, it will be removed from the model. Hence, ***H1* is not satisfied** 
 * As the sex variables is a factor variable, the "female" part of the      variable is the baseline, and its coefficient is simply the intercept. 
 * The true coefficient of the "male" student would be **-1.38733 +         1.00870 = -0.37863**.
 
@@ -141,7 +141,7 @@ cbind(OR, CI)
 # predict() the probability of high_use
 probabilities <- predict(glm_model2, type = "response")
 
-# add the predicted probabilities to 'alc'
+# add the predicted probabilities to 'data_joined'
 data_joined <- mutate(data_joined, probability = probabilities)
 
 # use the probabilities to make a prediction of high_use
@@ -153,12 +153,13 @@ select(data_joined, failures, absences, sex, high_use, probability, prediction) 
 # tabulate the target variable versus the predictions
 table(high_use = data_joined$high_use, 
        prediction = data_joined$prediction)
-
-# tabulate the target variable versus the predictions
-table(high_use = data_joined$high_use, prediction=data_joined$prediction)%>%
-prop.table() %>%
-addmargins()
 ```
+
+**Comments**:
+
+* They are 252 true negatives and 33 true positives, i.e the model was     able to explain 252 over 300 FALSEs, and 33 over 40 TRUEs. 
+* 7 false negatives and 78 false positives, i.e the model missed 7 over 40 TRUEs and 78 over 300 FALSEs.
+
 
 Let us check the accuracy and loss functions of the model
 
@@ -174,11 +175,7 @@ loss_func(class = data_joined$high_use, prob = data_joined$probability)
 
 ```
 
-**Comments**:
-
-* They are 252 true negatives and 33 true positives, i.e the model was     able to explain 252 over 300 FALSEs, and 33 over 40 TRUEs. 
-* 7 false negatives and 78 false positives, i.e the model missed 7 over 40 TRUEs and 78 over 300 FALSEs.
-* The mean of incorrectly classified observations can be thought of as a   penalty (loss) function for the classifier. Less penalty = good. The     aim is to minimize the incorrectly classified observations. 
+**Comments**: The mean of incorrectly classified observations can be thought of as a   penalty (loss) function for the classifier. Less penalty = good. The     aim is to minimize the incorrectly classified observations. Model2 has a mean prediction error of about **23%**.
 
 
 ## Bonus: Perform 10-fold cross-validation on the model
@@ -191,6 +188,7 @@ cv <- cv.glm(data = data_joined, cost = loss_func, glmfit = glm_model2, K = 10)
 cv$delta[1]
 ```
 
+**Comments**:
 
 ## Super-Bonus: Perform cross-validation on models
 
