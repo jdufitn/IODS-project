@@ -188,7 +188,14 @@ cv <- cv.glm(data = data_joined, cost = loss_func, glmfit = glm_model2, K = 10)
 cv$delta[1]
 ```
 
-**Comments**:
+**Comments**: Yes, model2 has a small prediction error (0.23 error) compared to the model introduced in DataCamp (0.26 error).
 
-## Super-Bonus: Perform cross-validation on models
+
+
+
+
+
+
+
+
 

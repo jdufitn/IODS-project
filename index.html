@@ -455,7 +455,6 @@ summary {
 <li><a href="#logistic-regression-analysis">Logistic regression analysis</a></li>
 <li><a href="#explore-the-predictive-power-of-the-model">Explore the predictive power of the model</a></li>
 <li><a href="#bonus-perform-10-fold-cross-validation-on-the-model">Bonus: Perform 10-fold cross-validation on the model</a></li>
-<li><a href="#super-bonus-perform-cross-validation-on-models">Super-Bonus: Perform cross-validation on models</a></li>
 </ul></li>
 </ul>
 </div>
@@ -926,10 +925,7 @@ cv &lt;- cv.glm(data = data_joined, cost = loss_func, glmfit = glm_model2, K = 1
 # average number of wrong predictions in the cross validation
 cv$delta[1]</code></pre>
 <pre><code>## [1] 0.2378378</code></pre>
-<p><strong>Comments</strong>:</p>
-</div>
-<div id="super-bonus-perform-cross-validation-on-models" class="section level2">
-<h2>Super-Bonus: Perform cross-validation on models</h2>
+<p><strong>Comments</strong>: Yes, model2 has a small prediction error (0.23 error) compared to the model introduced in DataCamp (0.26 error).</p>
 </div>
 </div>
 
