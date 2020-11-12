@@ -1,0 +1,196 @@
+# Logistic regression
+This chapter focuses on performing and interpreting logistic regression analysis.
+
+## Read the joined student alcohol consumption data
+The data are from two identical questionnaires related to secondary school student alcohol consumption in Portugal. **[Data source](http://archive.ics.uci.edu/ml/dataset)**: UCI Machine Learning Repository. Metadata available **[here](https://archive.ics.uci.edu/ml/datasets/Student+Performance)**.
+
+```{r}
+data_joined <- read.csv("pormath.csv") # Read data from my local folder
+str(data_joined) # The data structure is data frame.
+dim(data_joined) # The data contains 370 observations or rows and 35 variables or columns.
+colnames(data_joined) # variables names
+```
+
+
+
+## Four interesting variables in the data
+
+The chosen variables are: **Student grades(G3)**, **sex**, **absences**, and **failures**.
+
+The hypotheses are:
+
+* *H1:* A higher alcohol use is associated with lower grades.
+* *H2:* A higher alcohol use is associated with sex.
+* *H3:* A higher alcohol use is associated with student absences.
+* *H4:* A higher alcohol use is associated with student failures.
+
+
+## Explore the distributions of the chosen variables
+
+### Student grades(G3) and Sex relationships with alcohol consumption
+
+```{r message = FALSE}
+library(dplyr) # Access the dpyr library
+library(ggplot2) # Access the ggplot2 library
+```
+
+```{r message = FALSE}
+data_joined %>%   # produce summary statistics by group
+  group_by(sex, high_use) %>%
+  summarise(count = n(), mean_grade = mean(G3))
+```
+
+
+```{r}
+ggplot(data_joined, aes(x = high_use, y = G3, col = sex)) + geom_boxplot() + ylab("grade") + ggtitle("Student grades by alcohol consumption and sex")
+```
+
+**Comments**:
+
+* 41 females students over 195 (i.e. 21%) are higher alcohol users.
+* 70 males students over 175 (i.e. 40%) are higher alcohol users. With     these two comments, one can argue that ***H2* is satisfied**.
+* On average, males alcohol user tend to have lower grades (2 points less   than non-alcohol users).
+* For females,  grades point average is quite the same for alcohol and      non-alcohol users.
+* Looking at the boxplot, the non-alcohol user students have high grades.   Especially, males, their median grade point is higher than females.
+* Higher alcohol user students tend to have lower grades **(*H1*        satisfied)**
+* For higher alcohol users, females tend to have a high median grade point   than males.
+
+
+
+
+### Student absences relationships with alcohol consumption
+
+
+
+```{r}
+ggplot(data_joined, aes(x = high_use, y = absences, col = sex)) + geom_boxplot() + ggtitle("Student absences by alcohol consumption and sex")
+```
+
+**Comments**:
+
+* High alcohol user students are more absent than non-alcohol users       **(*H3* satisfied)**. And, the number of males students absent in this    category is slightly higher than females. 
+* For non-alcohol user students, females are more absent than males. However, their medium absent days are quite the same, for males and females.
+
+
+
+### Student failures relationships with alcohol consumption
+
+
+```{r}
+ggplot(data_joined, aes(failures, fill = high_use)) + geom_bar(position = "dodge") + ggtitle("Student failures by alcohol consumption")
+```
+
+**Comments**:
+
+* For students who failed, got "0", the counted number seems to be high     for non-alcohol user. This comment suggests that ***H4* is not            satisfied**.
+* For those students who got "1" and "2", the counted number seems to be    the same for higher alcohol user and non-alcohol user.
+* For those students who got "3", a slightly higher counted number seems    to be higher alcohol user; again, suggesting that ***H4* is not           satisfied**. 
+
+
+
+## Logistic regression analysis
+This analysis explores the relationship between the four chosen variables and the binary high/low alcohol consumption variable as the target variable.
+
+```{r}
+# Fit a logistic regression model using the glm() function
+glm_model1 <- glm(high_use ~ G3 + failures + absences + sex, data = data_joined, family = "binomial")
+# Summary of the fitted model
+summary(glm_model1)
+# Coefficients of the model
+coef(glm_model1)
+```
+
+**Interpretations**:
+
+* The **student grades (G3)** variable is not statistically significant;   thus, it will be removed from the model. Hence, ***H1* in not           satisfied** 
+* As the sex variables is a factor variable, the "female" part of the      variable is the baseline, and its coefficient is simply the intercept. 
+* The true coefficient of the "male" student would be **-1.38733 +         1.00870 = -0.37863**.
+
+Let us fit the model without G3 variable and an intercept to see all coefficients directly.
+
+```{r message = FALSE}
+# Fit a new logistic regression model 
+glm_model2 <- glm(high_use ~ failures + absences + sex - 1, data = data_joined, family = "binomial")
+# Summary of the fitted model
+summary(glm_model2)
+# Coefficients of the model
+coef(glm_model2)
+# compute odds ratios (OR)
+OR <- coef(glm_model2) %>% exp
+
+# compute confidence intervals (CI)
+CI <- confint(glm_model2) %>% exp
+
+# print out the odds ratios with their confidence intervals
+cbind(OR, CI)
+```
+
+**Interpretations**:
+
+* All coefficients are statistically significant. All variables are        highly significant predictors of the probability of high alcohol         consumption in students. 
+* Also, the model accuracy has improved. In terms of Information           criteria, the model1 had an AIC = **415.59**, while model2 has an AIC =   **414.99**; thus, model2 is the preferable one.
+* The odds of failures for a higher user alcohol students is estimated to   1.817 be with 95 CI of [1.219, 2.764]. **Note**: The interval contains   1, i.e the increase in the odds of being a higher alcohol user student   associated with a 1 unit increase failures is estimated to be between    21% and 170%. 
+* The odds of absences for a higher user alcohol students is estimated to   1.096 be with 95 CI of [1.050, 1.150]. **Note**: The interval contains   1, i.e the increase in the odds of being a higher alcohol user student   associated with a 1 unit increase absences is estimated to be between    5% and 15%. 
+* The odd of a male student being a higher alcohol user is estimated to    be 0.388 with 95 CI of [0.264, 0.563]. i.e it is between 26% and 56% of   the corresponding odds for a female student.
+* The odd of a female student being a higher alcohol user is estimated to    be 0.143 with 95 CI of [0.089, 0.221]. i.e it is between 8% and 22% of   the corresponding odds for a female student.
+
+
+## Explore the predictive power of the model 
+
+```{r}
+# predict() the probability of high_use
+probabilities <- predict(glm_model2, type = "response")
+
+# add the predicted probabilities to 'alc'
+data_joined <- mutate(data_joined, probability = probabilities)
+
+# use the probabilities to make a prediction of high_use
+data_joined <- mutate(data_joined, prediction = probability > 0.5)
+
+# see the first ten original classes, predicted probabilities, and class predictions
+select(data_joined, failures, absences, sex, high_use, probability, prediction) %>% head(10)
+
+# tabulate the target variable versus the predictions
+table(high_use = data_joined$high_use, 
+       prediction = data_joined$prediction)
+
+# tabulate the target variable versus the predictions
+table(high_use = data_joined$high_use, prediction=data_joined$prediction)%>%
+prop.table() %>%
+addmargins()
+```
+
+Let us check the accuracy and loss functions of the model
+
+```{r}
+# define a loss function (mean prediction error)
+loss_func <- function(class, prob) {
+  n_wrong <- abs(class - prob) > 0.5
+  mean(n_wrong)
+}
+
+# call loss_func to compute the average number of wrong predictions in the (training) data
+loss_func(class = data_joined$high_use, prob = data_joined$probability)
+
+```
+
+**Comments**:
+
+* They are 252 true negatives and 33 true positives, i.e the model was     able to explain 252 over 300 FALSEs, and 33 over 40 TRUEs. 
+* 7 false negatives and 78 false positives, i.e the model missed 7 over 40 TRUEs and 78 over 300 FALSEs.
+* The mean of incorrectly classified observations can be thought of as a   penalty (loss) function for the classifier. Less penalty = good. The     aim is to minimize the incorrectly classified observations. 
+
+
+## Bonus: Perform 10-fold cross-validation on the model
+
+```{r}
+library(boot)
+cv <- cv.glm(data = data_joined, cost = loss_func, glmfit = glm_model2, K = 10)
+
+# average number of wrong predictions in the cross validation
+cv$delta[1]
+```
+
+
+## Super-Bonus: Perform cross-validation on models
+
