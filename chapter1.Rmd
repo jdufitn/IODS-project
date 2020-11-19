@@ -30,7 +30,7 @@ As I am a regular R user, I guess things like
 * Run linear models
 * Explore data
 
-```{r}
+```{r include = FALSE}
 head(mtcars$disp) # few first
 tail(mtcars$disp) # few last
 ```
