@@ -1,0 +1,203 @@
+# Dimensionality reduction techniques
+This chapter focuses on dimensionality reduction techniques such as principal component analysis (PCA) and Multiple correspondence analysis (MCA).
+
+## Read the "human" data
+
+```{r}
+human <- read.csv("human_data") # Read the data from my local file
+dim(human) 
+str(human) 
+```
+
+## A graphical overview of the data and summary of the variables
+
+```{r message = FALSE, fig.align = "center"}
+library(GGally) # Access the GGally library
+library(dplyr) # Access the dplyr library
+library(corrplot) # Access the corrplot library
+
+# Remove the "Country" column
+human_new <- dplyr::select(human, -X)
+
+# visualize the 'human' variables
+ggpairs(human_new, mapping = aes(alpha = 0.3))
+
+# compute the correlation matrix and visualize it with corrplot
+cor(human_new)%>%
+corrplot(type = "upper")
+
+```
+
+**Interpretations**: 
+
+* There seems to be a positive correlation between Proportion of females with at least secondary education **(F_education)** with Life expectancy at birth **(Life_expectancy)**, and with Expected years of schooling **(Years_Education)**.
+* There seems to be a slightly positive correlation between Proportion of females with at least secondary education **(F_education)** with Gross National Income (GNI) per Capita **(GNI_per_capita)**.
+* There seems to be a positive correlation between Life expectancy at birth **(Life_expectancy)** and Expected years of schooling **(Years_education)**. And a slightly one between **Life_expectancy** and **GNI_per_capita**.
+* There seems to be a slightly positive correlation one between **Years_education** and **GNI_per_capita**.
+* A slightly positive correlation between Maternal Mortality Ratio **(Maternity_mortality)** and Adolescent Birth Rate **(Adolescent_birth)**.
+* A negative correlation is observed between **Years_Education** with **Maternity_mortality** and **Adolescent_birth**. Between **Life_expectancy** with **Maternity_mortality** and **Adolescent_birth**. Between **F_education** with **Maternity_mortality** and **Adolescent_birth**.
+* **Years_Education** and Percentage of female representatives in parliament **(In_parliament)** variables seem to be normally distributed.
+* F_labour / M_labour **(ratio_labour)** and **Life_Expectancy** seem to have more negative values; it is reflected in the left tail.
+* **GNI_per_capita**, **Maternal_mortality**, and **Adolescent_birth** seem to have more positive values; it is reflected in the right tail.
+
+```{r}
+summary(human_new) # summary of variables
+```
+
+**Interpretations**: On average, 
+
+* The proportion of females with at least secondary education is about 55.37.
+* The ratio between F_education and M_education is about 0.71.
+* Life expectancy at birth is approximately 72 years.
+* The expected years of schooling is approximately 13 years.
+* The Gross National Income (GNI) per Capita is about  17628.
+* The Maternal Mortality Ratio is about 149.1.
+* The Adolescent Birth Rate is about 47.2.
+* The Percentage of female representatives in parliament is about 20.91.
+
+
+
+## Perform principal component analysis (PCA) -- Non standarized data
+
+```{r message = FALSE, fig.align = "center", fig.cap = "Figure 1: CPA -- Non standarized data"}
+# perform principal component analysis
+pca_human_new <- prcomp(human_new)
+summary(pca_human_new)
+
+# draw a biplot of the principal component 
+biplot(pca_human_new, choices = 1:2, col = c("blue", "red"))
+
+```
+
+
+
+## Perform principal component analysis (PCA) -- Standarized data
+
+```{r fig.align = "center", fig.cap = "Figure 2: CPA -- Standarized data"}
+
+# standardize the variables
+human_std <- scale(human_new)
+
+# perform principal component analysis
+pca_human_std <- prcomp(human_std)
+summary(pca_human_std)
+
+# draw a biplot of the principal component 
+biplot(pca_human_std, choices = 1:2, col = c("grey40", "deeppink2"))
+
+```
+
+**Interpretations:**
+
+* **With and without standardizing, are the results different?** Yes, with and without standardizing, results are very much different.
+
+* **How and Why?** In Figure 1 -- PCA with no-standardized data, we can not really grasp the variability captured by the principal components. This is because PCA is sensitive to the relative scaling of the original features and assumes that features with larger variance are more important than features with smaller variance. That is probably the reason why the GNI_per_capita has a larger arrow. Also, 99% of variation explained by 1 PCA component. 
+
+* Figure 2, on the other hand, displays how Standardization of the features before PCA is a crucial step. The PCA decomposes data into a product of smaller components and reveals the most important features. 98% of variation explained by 7 PCA components, as presented in the Cumulative Proportion. The 1st principal component which captures the maximum amount of variance from the features in the original data counts for 56%.
+
+
+## Personal interpretations of PCA
+
+* The dimensionality of human data is reduced to two principal components (PC). The first PC captures more than 56% of the total variance, while the second PC captures 72%. This gives the uncorrelated variables which capture the maximum amount of variation in the data.
+
+From the biplot, we can observe the following connections:
+
++ The angle between arrows = the correlation between the features. Small-angle = high positive correlation. There is a high positive correlation between, for instance, ratio_labour and In_parliament, Maternity_mortality and Adorescent_birth.
+
++ The angle between a feature and a PC axis = the correlation between the two. Small-angle = high positive correlation. For instance, the following variables are positively correlated with PC1: Maternity_mortality, Adorescent_birth, Years_education, GNI_per_capita, and F_education.
+
++ The length of the arrows is proportional to the standard deviations of the features. All variables seem to have quite the same standard deviation, except the In_parliament with a short arrow.
+
+
+
+## Load the tea dataset for MCA analysis
+
+```{r message = FALSE, fig.align = "center"}
+library(FactoMineR)
+library(ggplot2)
+library(tidyr)
+
+data(tea)
+dim(tea)
+str(tea)
+
+# select the 'keep_columns' to create a new dataset to visualize 
+
+# column names to keep in the dataset
+keep_columns <- c("Tea", "How", "how", "sugar", "where", "lunch")
+
+tea_time <- select(tea, one_of(keep_columns))
+
+
+# visualize the dataset
+gather(tea_time) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar() + theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))
+```
+
+
+```{r fig.align = "center"}
+# Multiple Correspondence Analysis to a certain columns of the data
+mca <- MCA(tea_time, graph = FALSE)
+
+# summary of the model
+summary(mca)
+```
+
+## Visualization and interpretation of MCA
+We will use the **factoextra** R package to help in the interpretation and the visualization of the multiple correspondence analysis.
+
+* **Eigenvalues / Variances**
+
+These are the variances and the percentage of variances retained by each dimension. This proportion of variances retained by the different dimensions (axes) can be extracted using the function **get_eigenvalue()** as follow:
+
+```{r message = FALSE}
+library(factoextra) # Access the factoextra library
+
+eig_val <- get_eigenvalue(mca)
+head(eig_val)
+```
+
+To visualize the percentages of inertia explained by each MCA dimensions, use the function **fviz_eig()** or **fviz_screeplot()**.
+
+
+```{r fig.align = "center"}
+fviz_screeplot(mca, addlabels = TRUE, ylim = c(0, 45))
+```
+
+* **Biplot**
+
+The plot below shows a global pattern within the data.
+The function **fviz_mca_biplot()** can also be used to draw the biplot of individuals and variable categories. Here, we use the standard plot() function.
+
+```{r fig.align = "center"}
+# visualize MCA
+plot(mca, invisible=c("ind"), habillage = "quali")
+```
+
+**Comments:** The distance between variable categories gives a measure of their similarity. For example, tea bag and chain store are more similar than black and lemon, and green is different from all the other categories.
+
+* **Correlation between variables and principal dimensions**
+
+To visualize the correlation between variables and MCA principal dimensions, we use:
+
+```{r fig.align = "center"}
+fviz_mca_var(mca, choice = "mca.cor", 
+            repel = TRUE, # Avoid text overlapping (slow)
+            ggtheme = theme_minimal())
+```
+
+**Comments:** 
+
+* The plot above helps to identify variables that are the most correlated with each dimension. The squared correlations between variables and the dimensions are used as coordinates.
+* It can be seen that, the variable sugar is the most correlated with dimension 1. Similarly, the variable lunch is the most correlated with dimension 2.
+
+
+
+
+
+
+
+
+
+
+
+
