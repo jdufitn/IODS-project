@@ -26,7 +26,7 @@ tail(data_analysis, n = 3) # Three last rows
 
 ## A graphical overview of the data and summary of the variables 
 
-```{r message = FALSE}
+```{r message = FALSE, fig.align = "center"}
 library(GGally) # Access the GGally library
 library(ggplot2) # Access the ggplot2 library
 ```
@@ -98,7 +98,7 @@ Therefore, the interpretation goes as follows **"One unit increase in x[explanat
 
 ## Diagnostic plots
 
-```{r}
+```{r fig.align = "center"}
 # Plot the diagnostics plots: Residuals vs Fitted values, Normal QQ-plot and Residuals vs Leverage
 par(mfrow = c(2,2)) # Divide the window into a 2-by-2 sub-windows. 
 plot(model2, which = c(1,2,5))

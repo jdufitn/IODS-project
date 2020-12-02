@@ -41,7 +41,7 @@ data_joined %>%   # produce summary statistics by group
 ```
 
 
-```{r}
+```{r fig.align = "center"}
 ggplot(data_joined, aes(x = high_use, y = G3, col = sex)) + geom_boxplot() + ylab("grade") + ggtitle("Student grades by alcohol consumption and sex")
 ```
 
@@ -62,7 +62,7 @@ ggplot(data_joined, aes(x = high_use, y = G3, col = sex)) + geom_boxplot() + yla
 
 
 
-```{r}
+```{r fig.align = "center"}
 ggplot(data_joined, aes(x = high_use, y = absences, col = sex)) + geom_boxplot() + ggtitle("Student absences by alcohol consumption and sex")
 ```
 
@@ -76,7 +76,7 @@ ggplot(data_joined, aes(x = high_use, y = absences, col = sex)) + geom_boxplot()
 ### Student failures relationships with alcohol consumption
 
 
-```{r}
+```{r fig.align = "center"}
 ggplot(data_joined, aes(failures, fill = high_use)) + geom_bar(position = "dodge") + ggtitle("Student failures by alcohol consumption")
 ```
 

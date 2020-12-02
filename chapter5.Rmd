@@ -1,7 +1,7 @@
 # Dimensionality reduction techniques
 This chapter focuses on dimensionality reduction techniques such as principal component analysis (PCA) and Multiple correspondence analysis (MCA).
 
-## Read the "human" data
+## Read the human data
 
 ```{r}
 human <- read.csv("human_data") # Read the data from my local file
